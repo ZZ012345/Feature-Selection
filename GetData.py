@@ -3,8 +3,7 @@
 
 import numpy as np
 import random
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import axes3d
+from sklearn.datasets import make_swiss_roll
 
 
 def GetData(dataSet):
@@ -20,32 +19,34 @@ def GetData(dataSet):
     dataSet: 数据集
     """
 
-    figure = False
+    newData = False
     if dataSet == 0:
-        # 3维人工数据集,前2维满足正态分布,最后1维随机分布
-        sampleNum = 5000
-        mean1 = [0, 0]
-        cov1 = [[10, 5], [5, 5]]
-        x1, y1 = np.random.multivariate_normal(mean1, cov1, sampleNum).T
-        mean2 = [15, 0]
-        cov2 = [[10, 5], [5, 5]]
-        x2, y2 = np.random.multivariate_normal(mean2, cov2, sampleNum).T
-        z = [random.uniform(-10, 10) for _ in range(sampleNum * 2)]
+        # 3维人工数据集,前2维满足高斯分布,最后1维随机分布
+        if newData:
+            sampleNum = 20000
+            mean1 = [0, 0]
+            cov1 = [[10, 5], [5, 5]]
+            x1, y1 = np.random.multivariate_normal(mean1, cov1, sampleNum/2).T
+            mean2 = [15, 0]
+            cov2 = [[10, 5], [5, 5]]
+            x2, y2 = np.random.multivariate_normal(mean2, cov2, sampleNum/2).T
+            z = [random.uniform(-10, 10) for _ in range(sampleNum)]
+            data = np.vstack((np.hstack((x1, x2)), np.hstack((y1, y2)), z)).T
+            np.savetxt("./data/Gaussian.txt", data, fmt='%.5f')
+        else:
+            data = np.loadtxt("./data/Gaussian.txt")
 
-        if (figure):
-            fig = plt.figure()
-            plot1 = fig.add_subplot(121, projection='3d')
-            plot1.scatter(x1, y1, z[0:sampleNum], c='r', marker='o')
-            plot1.scatter(x2, y2, z[sampleNum:sampleNum*2], c='b', marker='x')
-            plot1.set_xlabel('x axis')
-            plot1.set_ylabel('y axis')
-            plot1.set_zlabel('z axis')
-            plot2 = fig.add_subplot(122)
-            plot2.scatter(x1, y1, c='r', marker='o')
-            plot2.scatter(x2, y2, c='b', marker='x')
-            plot2.set_xlabel('x axis')
-            plot2.set_ylabel('y axis')
-            plt.show()
+        return data
 
-        return np.vstack((np.hstack((x1, x2)), np.hstack((y1, y2)), z)).T
-        
+    elif dataSet == 1:
+        # swiss roll数据集
+        if newData:
+            sampleNum = 20000
+            data, color = make_swiss_roll(sampleNum)
+            dataToSave = np.hstack((data, color.reshape(sampleNum, 1)))
+            np.savetxt("./data/SwissRoll.txt", dataToSave, fmt='%.5f')
+        else:
+            dataSaved = np.loadtxt("./data/SwissRoll.txt")
+            data = dataSaved[:, 0:3]
+
+        return data

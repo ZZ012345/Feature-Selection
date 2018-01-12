@@ -1,7 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
-import numpy as np
 import datetime
 from GetData import GetData
 from skfeature.utility.construct_W import construct_W
@@ -11,20 +10,10 @@ from EntropyBasedFeatureRanking import EntropyBasedFeatureRanking
 from skfeature.function.similarity_based import SPEC
 
 
-'''
-dataSet用于标示实验数据集
-dataSet = 0:
-dataSet = 1:
-
-methodType用于标示实验算法
-methodType = 0:
-methodType = 1:
-'''
-
 # initialization
+methodType = 0
 dataSet = 0
 data = GetData(dataSet)
-methodType = 1
 print "Data Preparation finished."
 
 timeStart = datetime.datetime.now()
@@ -40,8 +29,9 @@ elif methodType == 1:
     # MCFS
     kwrags_W = {"metric": "euclidean", "neighbor_mode": "knn", "weight_mode": "heat_kernel", "k": 5, "t": 1}
     W = construct_W(data, **kwrags_W)
-    print "Affinity Matrix Construction finished."
-    result = MCFS.mcfs(data, 2, W=W, n_clusters=2)
+    # 参数n_selected_features用于控制LARs算法解的稀疏性，也就是result每一列中非零元素的个数
+    # 参数n_clusters用于控制LE降维的目标维数，也就是result的列数
+    result = MCFS.mcfs(data, n_selected_features=2, W=W, n_clusters=2)
     print result
 elif methodType == 2:
     # Entropy based Feature Ranking
@@ -55,4 +45,4 @@ elif methodType == 3:
     print result
 
 timeEnd = datetime.datetime.now()
-print "Run Time: ", timeEnd - timeStart
+print "Run Time:", timeEnd - timeStart

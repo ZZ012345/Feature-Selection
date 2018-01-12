@@ -8,19 +8,24 @@ from ReadFile import ReadFile
 import construct_W
 import datetime
 from ConstructPairwiseDistance import ConstructPairwiseDistance
+import ConstructWbyEdge
+from scipy.sparse import *
 
 
-data, label = ReadFile('mnist.txt')
-print data
-print data.shape
-print type(data)
-'''
-kwrags_W = {"metric": "euclidean", "neighbor_mode": "knn", "weight_mode": "heat_kernel", "k": 5, "t": 1}
-W = construct_W.construct_W(data, **kwrags_W)
+X = np.array([[0, 0], [1, 1], [2, 2], [4, 4]])
+E = np.array([[0, 1, 0, 0], [1,0,1,0],[0,1,0,1],[0,0,1,0]])
+print X
+print E
+D = pairwise_distances(X)
+print D
+D_ = np.multiply(D, E)
+print D_
+W = np.exp(-D_/2)
+for i in range(4):
+    for j in range(4):
+        if W[i, j] == 1:
+            W[i, j] = 0
 print W
-'''
-begin = datetime.datetime.now()
-weightMat = ConstructPairwiseDistance(data)
-end = datetime.datetime.now()
-print weightMat.shape
-print 'Time ', end-begin
+sparseW = csc_matrix(W)
+print sparseW
+print ConstructWbyEdge.ConstructWbyEdge(X, E)
